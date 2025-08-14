@@ -2,6 +2,7 @@
 
 import type { Meal } from '@/types/recipe'
 import type { DayName, MealType } from '@/types/planner'
+import { useState } from 'react'
 
 export function MealSlot({
   day, mealType, meal, onDrop, onClear,
@@ -22,11 +23,14 @@ export function MealSlot({
     } catch {}
   }
 
+  const [hover, setHover] = useState(false)
   return (
     <div
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}
-      className="rounded-md border border-dashed border-gray-700 p-3 min-h-24"
+     onDragOver={(e) => { e.preventDefault(); setHover(true) }}
+     onDragLeave={() => setHover(false)}
+     onDrop={(e) => { setHover(false); handleDrop(e) }}
+     className={`rounded-md p-3 min-h-24 border border-dashed transition-colors ${hover ? 'border-purple-500/70 bg-purple-500/5' : 'border-gray-700'}`}
+
     >
       <div className="text-xs uppercase text-gray-500 mb-1">{mealType}</div>
       {meal ? (

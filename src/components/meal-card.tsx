@@ -17,7 +17,10 @@ export function MealCard({ meal, onSave, onDelete, saved, showActions = true }: 
       layout
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-lg border border-gray-700 p-4 bg-gray-900 space-y-2"
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.99 }}
+      transition={{ duration: 0.18 }}
+      className="rounded-lg border border-gray-700 p-4 bg-gray-900/95 hover:bg-gray-900 space-y-2 shadow-sm"
     >
       <h3 className="text-lg font-semibold">{meal.title}</h3>
       <p className="text-sm text-gray-300">{meal.description}</p>

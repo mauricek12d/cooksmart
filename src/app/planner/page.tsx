@@ -76,7 +76,7 @@ function PlannerClient() {
               key={m.id}
               draggable
               onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify(m))}
-              className="cursor-grab active:cursor-grabbing rounded-md bg-gray-800 px-3 py-2 text-sm border border-gray-700"
+              className="cursor-grab active:cursor-grabbing rounded-md bg-gray-800/90 px-3 py-2 text-sm border border-gray-700 transition-colors"
               title="Drag to a day/slot"
             >
               {m.title} <span className="text-xs text-gray-400">• {m.time}</span>
