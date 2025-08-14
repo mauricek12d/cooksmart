@@ -2,22 +2,34 @@
 
 import { useState } from 'react'
 import type { Meal } from '@/types/recipe'
+import { addMeal } from '@/lib/meals'
+import { FIREBASE_CONFIGURED } from '@/lib/env'
+
+let useAuth: any = () => ({ user: { uid: 'dev' } }) // dev fallback
+if (FIREBASE_CONFIGURED) {
+  const AC = require('@/context/auth-context')
+  useAuth = AC.useAuth
+}
+
+import { MealCard } from '@/components/meal-card'
 
 export default function GeneratePage() {
+  const { user } = useAuth()
+  const uid = user?.uid || 'dev'
+
   const [input, setInput] = useState('chicken, broccoli, pasta')
   const [loading, setLoading] = useState(false)
   const [meals, setMeals] = useState<Meal[]>([])
   const [meta, setMeta] = useState<{ source?: string; error?: string }>({})
+  const [savingIndex, setSavingIndex] = useState<number | null>(null)
+  const [savedSet, setSavedSet] = useState<Set<number>>(new Set())
 
   async function onGenerate() {
     setLoading(true)
     setMeta({})
+    setSavedSet(new Set())
     try {
-      const ingredients = input
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-
+      const ingredients = input.split(',').map(s => s.trim()).filter(Boolean)
       const res = await fetch('/api/gpt/generate-meals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,6 +43,16 @@ export default function GeneratePage() {
       setMeta({ error: e?.message || 'Failed to generate' })
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function saveMeal(i: number) {
+    try {
+      setSavingIndex(i)
+      await addMeal(uid, meals[i])
+      setSavedSet(prev => new Set(prev).add(i))
+    } finally {
+      setSavingIndex(null)
     }
   }
 
@@ -65,19 +87,23 @@ export default function GeneratePage() {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {meals.map((m, i) => (
-          <div key={i} className="rounded-lg border border-gray-700 p-4 bg-gray-900 space-y-2">
-            <h3 className="text-lg font-semibold">{m.title}</h3>
-            <p className="text-sm text-gray-300">{m.description}</p>
-            <div className="text-xs text-gray-400">{m.time} • Serves {m.servings} • {m.difficulty}</div>
-            <div className="text-xs text-gray-400">Ingredients: {m.ingredients.join(', ')}</div>
-            {/* Day 6: add <MealCard /> + Save action */}
-          </div>
+          <MealCard
+            key={i}
+            meal={m}
+            showActions
+            saved={savedSet.has(i)}
+            onSave={() => saveMeal(i)}
+          />
         ))}
       </div>
 
       {meals.length === 0 && !loading && (
         <p className="text-sm text-gray-500">No meals yet — enter a few ingredients and click Generate.</p>
       )}
+
+      <div className="pt-2 text-sm text-gray-400">
+        {savingIndex !== null && 'Saving…'}
+      </div>
     </main>
   )
 }
