@@ -2,50 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme variables (system dark support) */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-/* Tailwind v4 token mapping (safe to keep; no harm if unused) */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* Base layer — use the tokens above instead of hard-coded gray-950/white */
+/* Dark theme + glow like the v0 shot */
 @layer base {
-  * { @apply border-border; }
+  :root {
+    --border: 217.2 32.6% 17.5%;
+  }
+
+  * { @apply border-gray-800; } /* avoid 'border-border' (v4/shadcn token) */
+  html { scroll-behavior: smooth; }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+    @apply bg-gray-950 text-white font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* subtle radial glow behind content */
+  /* Soft purple glow */
   body::before {
-    content: '';
-    position: fixed;
-    inset: -40% -10% auto -10%;
-    height: 60vh;
+    content:'';
+    position:fixed;
+    inset:-40% -10% auto -10%;
+    height:60vh;
     background: radial-gradient(60% 60% at 50% 20%, rgba(168,85,247,0.12) 0%, rgba(0,0,0,0) 70%);
-    pointer-events: none;
-    z-index: -1;
+    pointer-events:none;
+    z-index:-1;
   }
 }
 
-/* (Optional) component helpers */
 @layer components {
-  .gradient-text {
-    @apply bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent;
-  }
+  .gradient-text { @apply bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent; }
+  .card-hover { @apply transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl; }
+}
+
+@layer utilities {
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #475569 #1e293b; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { @apply bg-gray-900; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-gray-600 rounded-full; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { @apply bg-gray-500; }
 }
